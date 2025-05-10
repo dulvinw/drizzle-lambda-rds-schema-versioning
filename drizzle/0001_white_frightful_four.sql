@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "test" varchar(255) NOT NULL;
