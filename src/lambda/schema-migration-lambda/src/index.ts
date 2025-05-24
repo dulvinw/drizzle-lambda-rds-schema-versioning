@@ -26,11 +26,11 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
         responseData = {Error: error instanceof Error ? error.message : 'Unknown error'};
     }
 
-    await sendResponse(event, context, status, responseData);
+    return responseData;
 }
 
 const handleCreate = (event: CloudFormationCustomResourceEvent) => {
-    return {Message: 'Resource created'};
+    return {statusCode: 200, body: JSON.stringify({eventMessage: 'Resource created'})};
 }
 
 const handleUpdate = (event: CloudFormationCustomResourceEvent) => {

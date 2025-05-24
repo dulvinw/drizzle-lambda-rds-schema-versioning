@@ -1,6 +1,13 @@
 import {Construct} from "constructs";
 
-import {Code, DockerImageCode, DockerImageFunction, Function as LambdaFunction, Runtime} from "aws-cdk-lib/aws-lambda";
+import {
+    Architecture,
+    Code,
+    DockerImageCode,
+    DockerImageFunction,
+    Function as LambdaFunction,
+    Runtime
+} from "aws-cdk-lib/aws-lambda";
 import {IVpc, SecurityGroup, SubnetType} from "aws-cdk-lib/aws-ec2";
 
 interface SchemaMigrationLambdaProps {
@@ -25,6 +32,7 @@ export class SchemaMigrationLambda extends Construct {
             code: DockerImageCode.fromImageAsset('./src/lambda/schema-migration-lambda'),
             securityGroups: [this.lambdaSecurityGroup],
             vpcSubnets: vpc.selectSubnets({subnetType: SubnetType.PRIVATE_WITH_EGRESS}),
+            architecture: Architecture.ARM_64,
         });
     }
 }
