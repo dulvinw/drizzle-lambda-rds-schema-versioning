@@ -1,6 +1,6 @@
 import {Construct} from "constructs";
 
-import {Code, Function as LambdaFunction, Runtime} from "aws-cdk-lib/aws-lambda";
+import {Code, DockerImageCode, DockerImageFunction, Function as LambdaFunction, Runtime} from "aws-cdk-lib/aws-lambda";
 import {IVpc, SecurityGroup, SubnetType} from "aws-cdk-lib/aws-ec2";
 
 interface SchemaMigrationLambdaProps {
@@ -20,11 +20,9 @@ export class SchemaMigrationLambda extends Construct {
             allowAllOutbound: true,
         });
 
-        this.lambdaFunction = new LambdaFunction(this, 'SchemaMigrationLambda', {
+        this.lambdaFunction = new DockerImageFunction(this, 'SchemaMigrationLambda', {
             vpc,
-            runtime: Runtime.NODEJS_22_X,
-            handler: 'index.handler',
-            code: Code.fromInline('exports.handler = async () => console.log("Hello World!");'),
+            code: DockerImageCode.fromImageAsset('./src/lambda/schema-migration-lambda'),
             securityGroups: [this.lambdaSecurityGroup],
             vpcSubnets: vpc.selectSubnets({subnetType: SubnetType.PRIVATE_WITH_EGRESS}),
         });

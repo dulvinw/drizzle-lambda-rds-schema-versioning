@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import {Construct} from 'constructs';
-import {ServerlessPostgres} from "./constructs/ServerlessPostgres";
-import {SchemaMigrationLambda} from "./constructs/SchemaMigrationLambda";
+import {ServerlessPostgres} from "./constructs/serverless-postgres";
+import {SchemaMigrationLambda} from "./constructs/schema-migration-lambda";
 
 export class RdbSchemaVersioningStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
