@@ -1,20 +1,22 @@
-import { CloudFormationCustomResourceEvent, Context } from 'aws-lambda';
-import { drizzle } from 'drizzle-orm/mysql2';
+import { CloudFormationCustomResourceEvent } from 'aws-lambda';
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import * as mysql from 'mysql2';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
-import { SecretsManager } from 'aws-sdk';
-import * as mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
+
+const secretManager = new SecretsManagerClient();
 
 const getDbPool = async () => {
-  const secret = await new SecretsManager()
-    .getSecretValue({ SecretId: process.env.DB_SECRET_ARN! })
-    .promise();
+  const response = await secretManager.send(
+    new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_ARN! }),
+  );
 
-  if (!secret.SecretString) {
+  if (!response.SecretString) {
     throw new Error('DB secret not found');
   }
 
-  const { host, username, password, port, dbname } = JSON.parse(secret.SecretString);
-  return mysql.createPool({
+  const { host, username, password, port, dbname } = JSON.parse(response.SecretString);
+  return mysql.createConnection({
     host,
     user: username,
     password,
@@ -41,6 +43,7 @@ export const handler = async (event: CloudFormationCustomResourceEvent) => {
 
       case 'Update':
         console.log('Update');
+        responseData = handleCreate();
         break;
 
       case 'Delete':
@@ -56,7 +59,8 @@ export const handler = async (event: CloudFormationCustomResourceEvent) => {
 };
 
 const handleCreate = async () => {
-  const db = drizzle({ client: await getDbPool() });
+  const dbPool = await getDbPool();
+  const db = drizzle({ client: dbPool });
   try {
     await migrate(db, migrationConfig);
     return { statusCode: 200, body: JSON.stringify({ eventMessage: 'Resource created' }) };

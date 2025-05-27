@@ -13,7 +13,7 @@ export class RdbSchemaVersioningStack extends cdk.Stack {
     const database = new ServerlessPostgres(this, 'ServerlessPostgres', {
       vpc,
     });
-    const { dbSecurityGroup, dbSecret } = database;
+    const { dbSecurityGroup, dbSecret, database: postgres } = database;
 
     const migrationLambda = new SchemaMigrationLambda(this, 'SchemaMigrationLambda', {
       vpc,
@@ -23,5 +23,6 @@ export class RdbSchemaVersioningStack extends cdk.Stack {
 
     dbSecurityGroup.addIngressRule(lambdaSecurityGroup, ec2.Port.tcp(3306));
     dbSecret.grantRead(lambdaFunction);
+    postgres.grantConnect(lambdaFunction, 'clusteradmin');
   }
 }
