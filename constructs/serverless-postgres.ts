@@ -21,12 +21,14 @@ export class ServerlessPostgres extends Construct {
       dbname: 'cluster_db',
       secretName: 'cluster_db_secret',
     });
+
     this.dbSecurityGroup = new SecurityGroup(this, 'DBSecGroup', {
       securityGroupName: 'db_sec_group',
       allowAllOutbound: true,
       vpc,
       description: 'Allows access to the database',
     });
+
     this.database = new rds.DatabaseCluster(this, 'AuroraCluster', {
       serverlessV2MaxCapacity: 1,
       serverlessV2MinCapacity: 0,
